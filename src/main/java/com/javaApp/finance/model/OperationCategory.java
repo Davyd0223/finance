@@ -13,6 +13,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+
 @Table(name = "operation_categories")
 public class OperationCategory extends AbstractBaseEntity {
     @ManyToOne
