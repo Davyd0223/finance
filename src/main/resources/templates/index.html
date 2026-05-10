@@ -1,10 +1,156 @@
-<!DOCTYPE html>
-<html lang="en">
-<html>
+<!doctype html>
+<html lang="ru">
 <head>
-    <title>Finance App</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Wealthy — Finance App</title>
+    <link rel="stylesheet" href="/css/styles.css"/>
 </head>
 <body>
-<h1>Привет! Приложение работает!</h1>
+<div class="container">
+    <header class="topbar">
+        <div class="brand">
+            <div class="brand-badge" aria-hidden="true"></div>
+            <div>
+                <div class="brand-title">Wealthy</div>
+            </div>
+        </div>
+
+        <form class="auth" action="/auth/login" method="post" autocomplete="on">
+            <label>
+                <input name="email" placeholder="Email" inputmode="email" autocomplete="email"/>
+            </label>
+            <label>
+                <input name="password" placeholder="Пароль" type="password" autocomplete="current-password"/>
+            </label>
+            <button class="btn primary" type="submit">Войти</button>
+            <button class="btn" type="button" id="open-register">Зарегистрироваться</button>
+        </form>
+    </header>
+
+    <main class="landing">
+        <section class="card hero">
+            <div class="hero-grid">
+                <div>
+                    <h1 class="h1">Личный учёт доходов и расходов</h1>
+                    <p class="muted">
+                        Wealthy помогает фиксировать операции, видеть текущий баланс, контролировать расходы и
+                        просматривать историю транзакций в одном месте.
+                    </p>
+
+                    <div class="hero-actions">
+                        <a class="btn primary" href="/app" role="button">Перейти в кабинет</a>
+                        <button class="btn" type="button" id="open-register-2">Создать аккаунт</button>
+                    </div>
+
+                    <div class="muted" style="margin-top:10px">
+                        После регистрации вам будут доступны кошелёк, форма создания операции и история транзакций.
+                    </div>
+                </div>
+
+                <div class="hero-media" aria-hidden="true">
+                    <img
+                            class="hero-img"
+                            src="https://images.unsplash.com/photo-1554224154-22dec7ec8818?auto=format&fit=crop&w=1200&q=70"
+                            alt=""
+                            loading="lazy"
+                    />
+                    <div class="hero-stack">
+                        <img
+                                class="hero-img small"
+                                src="https://images.unsplash.com/photo-1559526324-593bc073d938?auto=format&fit=crop&w=1200&q=70"
+                                alt=""
+                                loading="lazy"
+                        />
+                        <img
+                                class="hero-img small"
+                                src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=1200&q=70"
+                                alt=""
+                                loading="lazy"
+                        />
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="card" style="margin-top:16px">
+            <h2>Что внутри</h2>
+            <div class="muted">Коротко о возможностях приложения.</div>
+            <div class="features">
+                <div class="feature">
+                    <div class="pill ok">Операции</div>
+                    <div class="muted">Доход/расход, сумма, дата/время и категория из готового списка.</div>
+                </div>
+                <div class="feature">
+                    <div class="pill">История</div>
+                    <div class="muted">Все транзакции в таблице, быстрое редактирование и удаление.</div>
+                </div>
+                <div class="feature">
+                    <div class="pill warn">Контроль расходов</div>
+                    <div class="muted">Баланс и сумма расходов за период — всегда на виду.</div>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<dialog class="modal" id="register-modal" aria-label="Регистрация">
+    <form class="modal-card" action="/auth/register" method="post" autocomplete="on">
+        <div class="modal-head">
+            <div>
+                <div class="brand-title">Регистрация</div>
+                <div class="brand-sub">создайте аккаунт за минуту</div>
+            </div>
+            <button class="btn" type="button" id="close-register" aria-label="Закрыть">✕</button>
+        </div>
+
+        <div class="form" style="margin-top:12px">
+            <div>
+                <label for="reg-name">Имя</label>
+                <input id="reg-name" name="name" placeholder="Напр. Иван" autocomplete="name" required/>
+            </div>
+            <div>
+                <label for="reg-email">Email</label>
+                <input id="reg-email" name="email" placeholder="name@example.com" inputmode="email" autocomplete="email"
+                       required/>
+            </div>
+            <div>
+                <label for="reg-password">Пароль</label>
+                <input id="reg-password" name="password" type="password" autocomplete="new-password" required/>
+            </div>
+
+            <div class="actions">
+                <button class="btn primary" type="submit">Зарегистрироваться</button>
+                <button class="btn" type="button" id="close-register-2">Отмена</button>
+            </div>
+        </div>
+    </form>
+</dialog>
+
+<script>
+    const modal = document.getElementById('register-modal');
+    const open1 = document.getElementById('open-register');
+    const open2 = document.getElementById('open-register-2');
+    const close1 = document.getElementById('close-register');
+    const close2 = document.getElementById('close-register-2');
+
+    function openModal() {
+        modal?.showModal();
+    }
+
+    function closeModal() {
+        modal?.close();
+    }
+
+    open1?.addEventListener('click', openModal);
+    open2?.addEventListener('click', openModal);
+    close1?.addEventListener('click', closeModal);
+    close2?.addEventListener('click', closeModal);
+
+    modal?.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+</script>
 </body>
 </html>
+

@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Wealthy — Кабинет</title>
+    <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body>
+<div class="container">
+    <header class="topbar">
+        <div class="brand">
+            <div class="brand-badge" aria-hidden="true"></div>
+            <div>
+                <div class="brand-title">Wealthy</div>
+                <div class="brand-sub">кабинет</div>
+            </div>
+        </div>
+
+        <div class="auth">
+            <a class="btn" href="/" role="button">Главная</a>
+            <form action="/auth/logout" method="post" style="display:inline">
+                <button class="btn danger" type="submit">Выйти</button>
+            </form>
+        </div>
+    </header>
+
+    <main class="grid">
+        <section class="card">
+            <h2>Кошелек</h2>
+
+            <div class="kpi" role="list" aria-label="Сводка">
+                <div class="mini" role="listitem">
+                    <div class="muted">Баланс</div>
+                    <div class="value">₽ 128 400</div>
+                </div>
+                <div class="mini" role="listitem">
+                    <div class="muted">Расходы</div>
+                    <div class="value">₽ 41 950</div>
+                    <div class="pill warn">порог: ₽ 50 000</div>
+                </div>
+            </div>
+
+            <div style="margin-top:16px">
+                <h3 class="h3">История транзакций</h3>
+                <table class="table" aria-label="История транзакций" style="margin-top:10px">
+                    <thead>
+                    <tr>
+                        <th style="width:18%">Дата</th>
+                        <th style="width:16%">Категория</th>
+                        <th style="width:14%">Тип</th>
+                        <th style="width:20%">Сумма</th>
+                        <th style="width:32%">Действия</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>2026-05-08 17:00</td>
+                        <td><span class="pill">GROCERIES</span></td>
+                        <td><span class="pill warn">EXPENSE</span></td>
+                        <td>₽ 1 990</td>
+                        <td class="table-actions">
+                            <a class="btn" href="/transactions/1/edit" role="button">Редактировать</a>
+                            <form action="/transactions/1/delete" method="post" style="display:inline">
+                                <button class="btn danger" type="submit">Удалить</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2026-05-07 10:00</td>
+                        <td><span class="pill">TRANSPORT</span></td>
+                        <td><span class="pill warn">EXPENSE</span></td>
+                        <td>₽ 460</td>
+                        <td class="table-actions">
+                            <a class="btn" href="/transactions/2/edit" role="button">Редактировать</a>
+                            <form action="/transactions/2/delete" method="post" style="display:inline">
+                                <button class="btn danger" type="submit">Удалить</button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <aside class="card">
+            <h2>Операция</h2>
+            <form class="form" action="/transactions" method="post" autocomplete="off">
+                <div class="row">
+                    <div>
+                        <label for="op-kind">Тип</label>
+                        <select id="op-kind" name="kind" required>
+                            <option value="INCOME">INCOME</option>
+                            <option value="EXPENSE">EXPENSE</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="op-amount">Сумма</label>
+                        <input id="op-amount" name="amount" placeholder="Напр. 1990" inputmode="decimal" required/>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div>
+                        <label for="op-category">Категория</label>
+                        <select id="op-category" name="category" required>
+                            <option value="GROCERIES">GROCERIES</option>
+                            <option value="TRANSPORT">TRANSPORT</option>
+                            <option value="CAFE">CAFE</option>
+                            <option value="HEALTH">HEALTH</option>
+                            <option value="ENTERTAINMENT">ENTERTAINMENT</option>
+                            <option value="UTILITIES">UTILITIES</option>
+                            <option value="RENT">RENT</option>
+                            <option value="EDUCATION">EDUCATION</option>
+                            <option value="CLOTHING">CLOTHING</option>
+                            <option value="OTHER">OTHER</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="op-date_time">Дата и время</label>
+                        <input id="op-date_time" name="date_time" type="datetime-local" required/>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn primary" type="submit">Сохранить</button>
+                    <button class="btn" type="reset">Очистить</button>
+                </div>
+            </form>
+        </aside>
+    </main>
+</div>
+</body>
+</html>
+

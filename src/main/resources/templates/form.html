@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Wealthy — Forms</title>
+    <link rel="stylesheet" href="/css/styles.css"/>
+</head>
+<body>
+<div class="container">
+    <header class="topbar">
+        <div class="brand">
+            <div class="brand-badge" aria-hidden="true"></div>
+            <div>
+                <div class="brand-title">Wealthy</div>
+                <div class="brand-sub">forms</div>
+            </div>
+        </div>
+        <div class="auth">
+            <a class="btn" href="/list" role="button">К списку</a>
+            <a class="btn" href="/index" role="button">На главную</a>
+        </div>
+    </header>
+
+    <main class="grid">
+        <section class="card" style="margin-top:18px">
+            <h2>User</h2>
+            <div class="muted">Поля строго соответствуют `model/User` (+ `id` из `AbstractBaseEntity`).</div>
+
+            <form class="form" action="#" method="post" autocomplete="on">
+                <input type="hidden" name="id" value=""/>
+
+                <div>
+                    <label for="u-name">Имя</label>
+                    <input id="u-name" name="name" placeholder="Напр. Иван" autocomplete="name"/>
+                </div>
+
+                <div class="row">
+                    <div>
+                        <label for="u-email">Email</label>
+                        <input id="u-email" name="email" placeholder="name@example.com" inputmode="email"
+                               autocomplete="email"/>
+                    </div>
+                    <div>
+                        <label for="u-password">Пароль</label>
+                        <input id="u-password" name="password" type="password" autocomplete="new-password"/>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div>
+                        <label for="u-defaultCurrency">Default currency</label>
+                        <select id="u-defaultCurrency" name="defaultCurrency">
+                            <option value="" selected>—</option>
+                            <option value="USD">USD</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="u-defaultMonthlyBudget">Default monthly budget</label>
+                        <input id="u-defaultMonthlyBudget" name="defaultMonthlyBudget" inputmode="decimal"
+                               placeholder="0"/>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn primary" type="submit">Сохранить</button>
+                    <button class="btn" type="reset">Сбросить</button>
+                    <a class="btn danger" href="/confirm-delete" role="button">Удалить…</a>
+                </div>
+            </form>
+        </section>
+
+        <section class="card" style="margin-top:18px">
+            <h2>Wallet</h2>
+            <div class="muted">Поля строго соответствуют `model/Wallet` (+ `id`).</div>
+
+            <form class="form" action="#" method="post" autocomplete="off">
+                <input type="hidden" name="id" value=""/>
+
+                <div>
+                    <label for="w-user">User</label>
+                    <select id="w-user" name="user">
+                        <option value="" selected>—</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="w-name">Name</label>
+                    <input id="w-name" name="name" placeholder="Напр. Основная карта"/>
+                </div>
+
+                <div class="row">
+                    <div>
+                        <label for="w-currency">Currency</label>
+                        <select id="w-currency" name="currency">
+                            <option value="" selected>—</option>
+                            <option value="USD">USD</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="w-type">Type</label>
+                        <select id="w-type" name="type">
+                            <option value="" selected>—</option>
+                            <option value="CASH">CASH</option>
+                            <option value="CARD">CARD</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn primary" type="submit">Сохранить</button>
+                    <button class="btn" type="reset">Сбросить</button>
+                    <a class="btn danger" href="/confirm-delete" role="button">Удалить…</a>
+                </div>
+            </form>
+        </section>
+
+        <section class="card" style="margin-top:18px">
+            <h2>Transaction</h2>
+            <div class="muted">Поля строго соответствуют `model/Transaction` (+ `id`).</div>
+
+            <form class="form" action="#" method="post" autocomplete="off">
+                <input type="hidden" name="id" value=""/>
+
+                <div>
+                    <label for="t-user">User</label>
+                    <select id="t-user" name="user">
+                        <option value="" selected>—</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="t-category">Category</label>
+                    <select id="t-category" name="category">
+                        <option value="" selected>—</option>
+                        <option value="GROCERIES">GROCERIES</option>
+                        <option value="TRANSPORT">TRANSPORT</option>
+                        <option value="CAFE">CAFE</option>
+                        <option value="HEALTH">HEALTH</option>
+                        <option value="ENTERTAINMENT">ENTERTAINMENT</option>
+                        <option value="UTILITIES">UTILITIES</option>
+                        <option value="RENT">RENT</option>
+                        <option value="EDUCATION">EDUCATION</option>
+                        <option value="CLOTHING">CLOTHING</option>
+                        <option value="OTHER">OTHER</option>
+                    </select>
+                </div>
+
+                <div class="row">
+                    <div>
+                        <label for="t-date_time">Date &amp; time</label>
+                        <input id="t-date_time" name="date_time" type="datetime-local"/>
+                    </div>
+                    <div>
+                        <label for="t-amount">Amount</label>
+                        <input id="t-amount" name="amount" inputmode="decimal" placeholder="0"/>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="t-kind">Kind</label>
+                    <select id="t-kind" name="kind">
+                        <option value="" selected>—</option>
+                        <option value="INCOME">INCOME</option>
+                        <option value="EXPENSE">EXPENSE</option>
+                    </select>
+                </div>
+
+                <div class="actions">
+                    <button class="btn primary" type="submit">Сохранить</button>
+                    <button class="btn" type="reset">Сбросить</button>
+                    <a class="btn danger" href="/confirm-delete" role="button">Удалить…</a>
+                </div>
+            </form>
+        </section>
+    </main>
+</div>
+</body>
+</html>
