@@ -1,15 +1,15 @@
 package com.javaApp.finance.model;
 
 public enum Category {
-    ЗАРПЛАТА,
-    ТРАНСПОРТ,
-    КАФЕ,
-    ЗДОРОВЬЕ,
-    РАЗВЛЕЧЕНИЕ,
-    КОМУНАЛЬНЫЕУСЛУГИ,
-    АРЕНДА,
-    ОБРАЗОВАНИЕ,
-    ОДЕЖДА,
-    ДРУГОЕ
+    SALARY,
+    TRANSPORT,
+    CAFE,
+    HEALTH,
+    ENTERTAINMENT,
+    UTILITIES,
+    RENT,
+    EDUCATION,
+    CLOTHING,
+    OTHER
 }
 

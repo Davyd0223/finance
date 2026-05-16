@@ -1,56 +1,52 @@
 package com.javaApp.finance.web;
 
-import com.javaApp.finance.model.Currency;
-import com.javaApp.finance.model.User;
-import com.javaApp.finance.model.Wallet;
-import com.javaApp.finance.model.WalletType;
-import com.javaApp.finance.repository.UserRepository;
-import com.javaApp.finance.repository.WalletRepository;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import com.javaApp.finance.service.UserService;
+import com.javaApp.finance.util.Messages;
+import com.javaApp.finance.util.ValidationUtil;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.math.BigDecimal;
+import java.util.List;
 
+@AllArgsConstructor
 @Controller
 public class AuthController {
-    private final UserRepository userRepository;
-    private final WalletRepository walletRepository;
-    private final PasswordEncoder passwordEncoder;
-
-    public AuthController(UserRepository userRepository, WalletRepository walletRepository, PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
-        this.walletRepository = walletRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
+    private UserService userService;
+    private final Messages messages;
 
     @PostMapping("/auth/register")
     public String register(
             @RequestParam("name") String name,
             @RequestParam("email") String email,
-            @RequestParam("password") String password
+            @RequestParam("password") String password,
+            @RequestParam("walletName") String walletName,
+            RedirectAttributes redirectAttributes
     ) {
-        if (userRepository.findByEmail(email).isPresent()) {
+        ValidationUtil validation = new ValidationUtil()
+                .requireNotBlank(name, messages.get("validation.name.blank"))
+                .requireMinLength(name, 2, messages.get("validation.name.min"))
+                .requireMaxLength(name, 100, messages.get("validation.name.max"))
+                .requireNotBlank(email, messages.get("validation.email.blank"))
+                .requireMinLength(password, 5, messages.get("validation.password.min"))
+                .requireNotBlank(walletName, messages.get("validation.wallet.name.blank"))
+                .requireMinLength(walletName, 2, messages.get("validation.wallet.name.min"))
+                .requireMaxLength(walletName, 20, messages.get("validation.wallet.name.max"));
+
+        if (validation.hasErrors()) {
+            redirectAttributes.addFlashAttribute("registerErrors", validation.getErrors());
             return "redirect:/?registerError";
         }
 
-        User user = new User();
-        user.setName(name);
-        user.setEmail(email);
-        user.setPassword(passwordEncoder.encode(password));
-        user.setDefaultCurrency(Currency.USD);
-        user.setDefaultMonthlyBudget(BigDecimal.ZERO);
-        user = userRepository.save(user);
-
-        Wallet wallet = new Wallet();
-        wallet.setUser(user);
-        wallet.setName("main");
-        wallet.setCurrency(user.getDefaultCurrency());
-        wallet.setType(WalletType.CASH);
-        walletRepository.save(wallet);
-
-        return "redirect:/?registered";
+        try {
+            userService.registerUser(name, email, password, walletName);
+            return "redirect:/?registered";
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("registerErrors", List.of(e.getMessage()));
+            return "redirect:/?registerError";
+        }
     }
 }
 

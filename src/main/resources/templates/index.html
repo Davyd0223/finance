@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -17,6 +17,7 @@
         </div>
 
         <form class="auth" action="/auth/login" method="post" autocomplete="on">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
             <label>
                 <input name="email" placeholder="Email" inputmode="email" autocomplete="email"/>
             </label>
@@ -34,8 +35,8 @@
                 <div>
                     <h1 class="h1">Личный учёт доходов и расходов</h1>
                     <p class="muted">
-                        Wealthy помогает фиксировать операции, видеть текущий баланс, контролировать расходы и
-                        просматривать историю транзакций в одном месте.
+                        Wealthy помогает фиксировать операции, видеть текущий баланс,
+                        контролировать расходы и просматривать историю транзакций в одном месте.
                     </p>
 
                     <div class="hero-actions">
@@ -44,30 +45,22 @@
                     </div>
 
                     <div class="muted" style="margin-top:10px">
-                        После регистрации вам будут доступны кошелёк, форма создания операции и история транзакций.
+                        После регистрации вам будут доступны кошелёк,
+                        форма создания операции и история транзакций.
                     </div>
                 </div>
 
                 <div class="hero-media" aria-hidden="true">
-                    <img
-                            class="hero-img"
-                            src="https://images.unsplash.com/photo-1554224154-22dec7ec8818?auto=format&fit=crop&w=1200&q=70"
-                            alt=""
-                            loading="lazy"
-                    />
+                    <img class="hero-img"
+                         src="https://images.unsplash.com/photo-1554224154-22dec7ec8818?auto=format&fit=crop&w=1200&q=70"
+                         alt="" loading="lazy"/>
                     <div class="hero-stack">
-                        <img
-                                class="hero-img small"
-                                src="https://images.unsplash.com/photo-1559526324-593bc073d938?auto=format&fit=crop&w=1200&q=70"
-                                alt=""
-                                loading="lazy"
-                        />
-                        <img
-                                class="hero-img small"
-                                src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=1200&q=70"
-                                alt=""
-                                loading="lazy"
-                        />
+                        <img class="hero-img small"
+                             src="https://images.unsplash.com/photo-1559526324-593bc073d938?auto=format&fit=crop&w=1200&q=70"
+                             alt="" loading="lazy"/>
+                        <img class="hero-img small"
+                             src="https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?auto=format&fit=crop&w=1200&q=70"
+                             alt="" loading="lazy"/>
                     </div>
                 </div>
             </div>
@@ -96,6 +89,7 @@
 
 <dialog class="modal" id="register-modal" aria-label="Регистрация">
     <form class="modal-card" action="/auth/register" method="post" autocomplete="on">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
         <div class="modal-head">
             <div>
                 <div class="brand-title">Регистрация</div>
@@ -107,16 +101,23 @@
         <div class="form" style="margin-top:12px">
             <div>
                 <label for="reg-name">Имя</label>
-                <input id="reg-name" name="name" placeholder="Напр. Иван" autocomplete="name" required/>
+                <input id="reg-name" name="name" placeholder="Напр. Иван"
+                       autocomplete="name" required/>
             </div>
             <div>
                 <label for="reg-email">Email</label>
-                <input id="reg-email" name="email" placeholder="name@example.com" inputmode="email" autocomplete="email"
-                       required/>
+                <input id="reg-email" name="email" placeholder="name@example.com"
+                       inputmode="email" autocomplete="email" required/>
             </div>
             <div>
                 <label for="reg-password">Пароль</label>
-                <input id="reg-password" name="password" type="password" autocomplete="new-password" required/>
+                <input id="reg-password" name="password" type="password"
+                       autocomplete="new-password" required/>
+            </div>
+            <div>
+                <label for="reg-wallet">Название кошелька</label>
+                <input id="reg-wallet" name="walletName" placeholder="Напр. Основная карта"
+                       required/>
             </div>
 
             <div class="actions">
@@ -151,6 +152,18 @@
         if (e.target === modal) closeModal();
     });
 </script>
+<div th:replace="~{fragments/toast :: toasts}"></div>
+
+<!-- Тосты для логина и регистрации через URL параметры -->
+<div class="toast-container">
+    <div th:if="${param.registered}" class="toast success" onclick="this.remove()">
+        Вы успешно зарегистрированы. Войдите в систему.
+    </div>
+    <div th:if="${param.error}" class="toast" onclick="this.remove()">
+        Неверный email или пароль.
+    </div>
+</div>
+
+<script th:replace="~{fragments/toast :: toastScript}"></script>
 </body>
 </html>
-

@@ -1,13 +1,27 @@
 package com.javaApp.finance.service;
 
-public class CurrentUserService {
-    private static int id = 1;
+import com.javaApp.finance.model.User;
+import com.javaApp.finance.security.AuthUser;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
-    public static int authUserId() {
-        return id;
+public class CurrentUserService {
+
+    public static AuthUser getCurrentAuthUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new IllegalStateException("No authenticated user found");
+        }
+
+        return (AuthUser) authentication.getPrincipal();
     }
 
-    public static void setAuthUserId(int id) {
-        CurrentUserService.id = id;
+    public static User getCurrentUser() {
+        return getCurrentAuthUser().getUser();
+    }
+
+    public static int getCurrentUserId() {
+        return getCurrentAuthUser().getUser().getId();
     }
 }

@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="ru">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>Wealthy — Lists</title>
+    <title>Wealthy — Списки</title>
     <link rel="stylesheet" href="/css/styles.css"/>
 </head>
 <body>
@@ -13,114 +13,170 @@
             <div class="brand-badge" aria-hidden="true"></div>
             <div>
                 <div class="brand-title">Wealthy</div>
-                <div class="brand-sub">lists</div>
+                <div class="brand-sub">списки</div>
             </div>
         </div>
         <div class="auth">
-            <a class="btn" href="/index" role="button">На главную</a>
-            <a class="btn primary" href="/form" role="button">+ Создать</a>
+            <a class="btn" href="/app" role="button">В кабинет</a>
+            <form action="/auth/logout" method="post" style="display:inline">
+                <input type="hidden"
+                       th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}"/>
+                <button class="btn danger" type="submit">Выйти</button>
+            </form>
         </div>
     </header>
 
-    <main class="grid" style="margin-top:18px">
-        <section class="card">
-            <h2>Users</h2>
-            <div class="muted">Поля соответствуют `model/User` (+ `id`).</div>
+    <main class="grid" style="margin-top:18px; grid-template-columns: 1fr;">
 
-            <table class="table" aria-label="Users table" style="margin-top:12px">
+        <!-- Профиль пользователя -->
+        <section class="card">
+            <h2>Профиль</h2>
+            <table class="table" style="margin-top:12px">
                 <thead>
                 <tr>
-                    <th style="width:10%">id</th>
-                    <th style="width:22%">name</th>
-                    <th style="width:26%">email</th>
-                    <th style="width:18%">defaultCurrency</th>
-                    <th style="width:14%">defaultMonthlyBudget</th>
-                    <th style="width:10%">actions</th>
+                    <th>Имя</th>
+                    <th>Email</th>
+                    <th>Валюта</th>
+                    <th>Месячный бюджет</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr>
-                    <td>1</td>
-                    <td>Ivan</td>
-                    <td>ivan@example.com</td>
-                    <td><span class="pill">USD</span></td>
-                    <td>500</td>
-                    <td>
-                        <a class="btn" href="/form" role="button">Edit</a>
-                        <a class="btn danger" href="/confirm-delete" role="button">Delete</a>
-                    </td>
+                    <td th:text="${user.name}">-</td>
+                    <td th:text="${user.email}">-</td>
+                    <td><span class="pill" th:text="${user.defaultCurrency}">-</span></td>
+                    <td th:text="${@format.money(user.defaultMonthlyBudget, user.defaultCurrency)}">-</td>
                 </tr>
                 </tbody>
             </table>
         </section>
 
+        <!-- Создание кошелька -->
         <section class="card">
-            <h2>Wallets</h2>
-            <div class="muted">Поля соответствуют `model/Wallet` (+ `id`).</div>
+            <h2>Создать кошелек</h2>
 
-            <table class="table" aria-label="Wallets table" style="margin-top:12px">
+            <form class="form" action="/wallets" method="post" autocomplete="off" style="margin-top:12px">
+                <input type="hidden"
+                       th:name="${_csrf.parameterName}"
+                       th:value="${_csrf.token}"/>
+
+                <div>
+                    <label for="wallet-name">Название</label>
+                    <input id="wallet-name" name="name" placeholder="Напр. Основная карта" required/>
+                </div>
+
+                <div class="row">
+                    <div>
+                        <label for="wallet-currency">Валюта</label>
+                        <select id="wallet-currency" name="currency" required>
+                            <option th:each="currency : ${currencies}"
+                                    th:value="${currency}"
+                                    th:text="${currency}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="wallet-type">Тип</label>
+                        <select id="wallet-type" name="type" required>
+                            <option th:each="walletType : ${walletTypes}"
+                                    th:value="${walletType}"
+                                    th:text="${walletType}">
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn primary" type="submit">Создать кошелек</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Кошельки -->
+        <section class="card">
+            <h2>Кошельки</h2>
+            <table class="table" style="margin-top:12px">
                 <thead>
                 <tr>
-                    <th style="width:10%">id</th>
-                    <th style="width:18%">user</th>
-                    <th style="width:28%">name</th>
-                    <th style="width:18%">currency</th>
-                    <th style="width:16%">type</th>
-                    <th style="width:10%">actions</th>
+                    <th>Название</th>
+                    <th>Валюта</th>
+                    <th>Тип</th>
+                    <th>Действия</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
-                    <td>10</td>
-                    <td>1</td>
-                    <td>Main card</td>
-                    <td><span class="pill">USD</span></td>
-                    <td><span class="pill">CARD</span></td>
-                    <td>
-                        <a class="btn" href="/form" role="button">Edit</a>
-                        <a class="btn danger" href="/confirm-delete" role="button">Delete</a>
+                <tr th:each="wallet : ${wallets}">
+                    <td th:text="${wallet.name}">-</td>
+                    <td><span class="pill" th:text="${wallet.currency}">-</span></td>
+                    <td><span class="pill" th:text="${wallet.type}">-</span></td>
+                    <td class="table-actions">
+                        <form th:action="@{/wallets/{id}/delete(id=${wallet.id})}"
+                              method="post" style="display:inline">
+                            <input type="hidden"
+                                   th:name="${_csrf.parameterName}"
+                                   th:value="${_csrf.token}"/>
+                            <button class="btn danger" type="submit">Удалить</button>
+                        </form>
                     </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(wallets)}">
+                    <td colspan="4" class="muted">Кошельков нет</td>
                 </tr>
                 </tbody>
             </table>
         </section>
 
+        <!-- Транзакции -->
         <section class="card">
-            <h2>Transactions</h2>
-            <div class="muted">Поля соответствуют `model/Transaction` (+ `id`).</div>
-
-            <table class="table" aria-label="Transactions table" style="margin-top:12px">
+            <h2>Транзакции</h2>
+            <table class="table" style="margin-top:12px">
                 <thead>
                 <tr>
-                    <th style="width:6%">id</th>
-                    <th style="width:10%">user</th>
-                    <th style="width:10%">category</th>
-                    <th style="width:18%">date_time</th>
-                    <th style="width:12%">amount</th>
-                    <th style="width:12%">kind</th>
-                    <th style="width:20%">actions</th>
+                    <th>Кошелек</th>
+                    <th>Категория</th>
+                    <th>Дата</th>
+                    <th>Сумма</th>
+                    <th>Тип</th>
+                    <th>Действия</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
-                    <td>15</td>
-                    <td>1</td>
-                    <td>TRANSPORT</td>
-                    <td>2026-05-08T17:00</td>
-                    <td>1990</td>
-                    <td><span class="pill warn">EXPENSE</span></td>
+                <tr th:each="transaction : ${transactions}">
+                    <td th:text="${transaction.wallet.name}">-</td>
+                    <td th:text="${transaction.category}">-</td>
+                    <td th:text="${#temporals.format(transaction.dateTime, 'yyyy-MM-dd HH:mm')}">-</td>
+                    <td th:text="${@format.money(transaction.amount, transaction.wallet.currency)}">-</td>
                     <td>
-                        <a class="btn" href="/form" role="button">Edit</a>
-                        <a class="btn danger" href="/confirm-delete" role="button">Delete</a>
+                        <span class="pill"
+                              th:classappend="${transaction.kind.name() == 'INCOME'} ? 'ok' : 'warn'"
+                              th:text="${transaction.kind}">-</span>
                     </td>
+                    <td class="table-actions">
+                        <a class="btn"
+                           th:href="@{/transactions/{id}/edit(id=${transaction.id})}"
+                           role="button">Редактировать</a>
+                        <form th:action="@{/transactions/{id}/delete(id=${transaction.id})}"
+                              method="post" style="display:inline">
+                            <input type="hidden"
+                                   th:name="${_csrf.parameterName}"
+                                   th:value="${_csrf.token}"/>
+                            <input type="hidden" name="returnTo" value="list"/>
+                            <button class="btn danger" type="submit">Удалить</button>
+                        </form>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(transactions)}">
+                    <td colspan="6" class="muted">Транзакций нет</td>
                 </tr>
                 </tbody>
             </table>
         </section>
+
     </main>
-
-    <div class="footer">Desktop mock pages — только UI-рыба для шаблонов.</div>
 </div>
+<div th:replace="~{fragments/toast :: toasts}"></div>
+<script th:replace="~{fragments/toast :: toastScript}"></script>
 </body>
 </html>
-
