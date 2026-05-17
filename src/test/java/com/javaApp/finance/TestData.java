@@ -1,7 +1,6 @@
 package com.javaApp.finance;
 
 import com.javaApp.finance.model.*;
-import com.javaApp.finance.security.AuthUser;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -27,14 +26,6 @@ public class TestData {
         user.setPassword(USER_ENCODED_PASSWORD);
         user.setDefaultCurrency(Currency.USD);
         user.setDefaultMonthlyBudget(BigDecimal.ZERO);
-        return user;
-    }
-
-    public static User createUser(Integer id, String name, String email) {
-        User user = createUser();
-        user.setId(id);
-        user.setName(name);
-        user.setEmail(email);
         return user;
     }
 

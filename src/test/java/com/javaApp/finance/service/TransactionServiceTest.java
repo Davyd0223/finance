@@ -1,6 +1,9 @@
 package com.javaApp.finance.service;
 
-import com.javaApp.finance.model.*;
+import com.javaApp.finance.model.OperationKind;
+import com.javaApp.finance.model.Transaction;
+import com.javaApp.finance.model.User;
+import com.javaApp.finance.model.Wallet;
 import com.javaApp.finance.repository.TransactionRepository;
 import com.javaApp.finance.repository.WalletRepository;
 import com.javaApp.finance.util.Messages;
@@ -16,8 +19,9 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.javaApp.finance.TestData.*;
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class TransactionServiceTest {

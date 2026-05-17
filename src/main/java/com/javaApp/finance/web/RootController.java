@@ -46,7 +46,7 @@ public class RootController {
 
         Wallet selectedWallet;
         if (walletId == null || walletId == 0) {
-            selectedWallet = wallets.get(0);
+            selectedWallet = wallets.getFirst();
         } else {
             selectedWallet = walletService.getByIdAndUserId(walletId, userId);
         }
@@ -83,8 +83,8 @@ public class RootController {
         model.addAttribute("transactions", transactions);
         model.addAttribute("wallets", wallets);
         model.addAttribute("userCurrency", user.getDefaultCurrency());
-        model.addAttribute("currencies",  Currency.values());
-        model.addAttribute("walletTypes",  WalletType.values());
+        model.addAttribute("currencies", Currency.values());
+        model.addAttribute("walletTypes", WalletType.values());
 
         return "list";
     }

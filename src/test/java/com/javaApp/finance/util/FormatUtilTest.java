@@ -2,7 +2,9 @@ package com.javaApp.finance.util;
 
 import com.javaApp.finance.model.Currency;
 import org.junit.jupiter.api.Test;
+
 import java.math.BigDecimal;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class FormatUtilTest {

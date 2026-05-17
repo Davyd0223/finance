@@ -21,6 +21,22 @@ public class TransactionService {
     private final WalletRepository walletRepository;
     private final Messages messages;
 
+    @Transactional
+    public Transaction create(Transaction transaction, Integer userId) {
+        if (transaction.getId() != null) {
+            throw new IllegalArgumentException(messages.get("error.id.mustBeNull"));
+        }
+        validateOwnership(transaction, userId);
+        return transactionRepository.save(transaction);
+    }
+
+    @Transactional
+    public Transaction update(Transaction transaction, Integer userId) {
+        getByIdAndUserId(transaction.getId(), userId);
+        validateOwnership(transaction, userId);
+        return transactionRepository.save(transaction);
+    }
+
     @Transactional(readOnly = true)
     public List<Transaction> getAllByUserId(Integer userId) {
         return transactionRepository.findAllByUserIdOrderByDateTimeDesc(userId);
@@ -38,27 +54,12 @@ public class TransactionService {
     }
 
     @Transactional
-    public Transaction create(Transaction transaction, Integer userId) {
-        if (transaction.getId() != null) {
-            throw new IllegalArgumentException(messages.get("error.id.mustBeNull"));
-        }
-        validateOwnership(transaction, userId);
-        return transactionRepository.save(transaction);
-    }
-
-    @Transactional
-    public Transaction update(Transaction transaction, Integer userId) {
-        getByIdAndUserId(transaction.getId(), userId);
-        validateOwnership(transaction, userId);
-        return transactionRepository.save(transaction);
-    }
-
-    @Transactional
     public void delete(Integer id, Integer userId) {
         getByIdAndUserId(id, userId);
         transactionRepository.deleteById(id);
     }
 
+    @Transactional(readOnly = true)
     public BigDecimal calculateBalance(Integer userId) {
         return getAllByUserId(userId).stream()
                 .map(t -> t.getKind() == OperationKind.INCOME
@@ -67,6 +68,7 @@ public class TransactionService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
+    @Transactional(readOnly = true)
     public BigDecimal calculateBalanceByWallet(Integer userId, Integer walletId) {
         return getAllByUserIdAndWalletId(userId, walletId).stream()
                 .map(t -> t.getKind() == OperationKind.INCOME
@@ -75,6 +77,7 @@ public class TransactionService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
+    @Transactional(readOnly = true)
     public BigDecimal calculateExpenses(Integer userId) {
         return getAllByUserId(userId).stream()
                 .filter(t -> t.getKind() == OperationKind.EXPENSE)
@@ -82,6 +85,7 @@ public class TransactionService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
+    @Transactional(readOnly = true)
     public BigDecimal calculateExpensesByWallet(Integer userId, Integer walletId) {
         return getAllByUserIdAndWalletId(userId, walletId).stream()
                 .filter(t -> t.getKind() == OperationKind.EXPENSE)
