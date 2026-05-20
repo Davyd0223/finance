@@ -1,133 +1,74 @@
 package com.javaapp.finance.web;
 
-import com.javaapp.finance.model.*;
-import com.javaapp.finance.service.CurrentUserService;
+import com.javaapp.finance.dto.TransactionTo;
+import com.javaapp.finance.model.Transaction;
+import com.javaapp.finance.security.AuthUser;
 import com.javaapp.finance.service.TransactionService;
-import com.javaapp.finance.service.WalletService;
-import com.javaapp.finance.util.Messages;
-import com.javaapp.finance.util.ValidationUtil;
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import com.javaapp.finance.web.mapper.TransactionMapper;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
 
-@AllArgsConstructor
-@Controller
+@Tag(name = "Transactions", description = "Управление транзакциями")
+@RestController
+@RequestMapping("/api/transactions")
+@RequiredArgsConstructor
 public class TransactionController {
 
     private final TransactionService transactionService;
-    private final WalletService walletService;
-    private final Messages messages;
 
-    @PostMapping("/transactions")
-    public String create(
-            @RequestParam("amount") BigDecimal amount,
-            @RequestParam("category") Category category,
-            @RequestParam("kind") OperationKind kind,
-            @RequestParam("date_time") String dateTime,
-            @RequestParam("wallet_id") Integer walletId,
-            RedirectAttributes redirectAttributes
-    ) {
-        ValidationUtil validation = new ValidationUtil()
-                .requirePositive(amount, messages.get("validation.amount.positive"))
-                .requireDigits(amount, 13, 2, messages.get("validation.amount.format"))
-                .requireNotBlank(dateTime, messages.get("validation.date.blank"))
-                .requireNotNull(walletId, messages.get("validation.wallet.select"));
+    @Operation(summary = "Получить транзакции пользователя, можно отфильтровать по walletId")
+    @GetMapping
+    public List<TransactionTo> getAll(@RequestParam(required = false) Integer walletId,
+                                      @AuthenticationPrincipal AuthUser authUser) {
+        List<Transaction> transactions = (walletId == null)
+                ? transactionService.getAllByUserId(authUser.getId())
+                : transactionService.getAllByUserIdAndWalletId(authUser.getId(), walletId);
 
-        if (validation.hasErrors()) {
-            redirectAttributes.addFlashAttribute("errors", validation.getErrors());
-            return "redirect:/app?walletId=" + (walletId != null ? walletId : 0);
-        }
-
-        Integer userId = CurrentUserService.getCurrentUserId();
-        User user = CurrentUserService.getCurrentUser();
-        Wallet wallet = walletService.getByIdAndUserId(walletId, userId);
-
-        Transaction transaction = new Transaction();
-        transaction.setUser(user);
-        transaction.setWallet(wallet);
-        transaction.setAmount(amount);
-        transaction.setCategory(category);
-        transaction.setKind(kind);
-        transaction.setDateTime(LocalDateTime.parse(dateTime));
-
-        transactionService.create(transaction, userId);
-        return "redirect:/app?walletId=" + walletId;
+        return transactions.stream()
+                .map(TransactionMapper::toDto)
+                .toList();
     }
 
-    @GetMapping("/transactions/{id}/edit")
-    public String editForm(@PathVariable Integer id, Model model) {
-        Integer userId = CurrentUserService.getCurrentUserId();
-
-        Transaction transaction = transactionService.getByIdAndUserId(id, userId);
-        List<Wallet> wallets = walletService.getAllByUserId(userId);
-
-        model.addAttribute("transaction", transaction);
-        model.addAttribute("wallets", wallets);
-        model.addAttribute("categories", Category.values());
-        model.addAttribute("kinds", OperationKind.values());
-
-        return "transaction-edit";
+    @Operation(summary = "Получить транзакцию по id")
+    @GetMapping("/{id}")
+    public TransactionTo getById(@PathVariable Integer id,
+                                 @AuthenticationPrincipal AuthUser authUser) {
+        return TransactionMapper.toDto(transactionService.getByIdAndUserId(id, authUser.getId()));
     }
 
-    @PostMapping("/transactions/{id}/edit")
-    public String edit(
-            @PathVariable Integer id,
-            @RequestParam("amount") BigDecimal amount,
-            @RequestParam("category") Category category,
-            @RequestParam("kind") OperationKind kind,
-            @RequestParam("date_time") String dateTime,
-            @RequestParam("wallet_id") Integer walletId,
-            RedirectAttributes redirectAttributes
-    ) {
-        ValidationUtil validation = new ValidationUtil()
-                .requirePositive(amount, messages.get("validation.amount.positive"))
-                .requireNotBlank(dateTime, messages.get("validation.date.blank"))
-                .requireNotNull(walletId, messages.get("validation.wallet.select"));
-
-        if (validation.hasErrors()) {
-            redirectAttributes.addFlashAttribute("errors", validation.getErrors());
-            return "redirect:/transactions/" + id + "/edit";
-        }
-
-        Integer userId = CurrentUserService.getCurrentUserId();
-        User user = CurrentUserService.getCurrentUser();
-        Wallet wallet = walletService.getByIdAndUserId(walletId, userId);
-
-        Transaction transaction = transactionService.getByIdAndUserId(id, userId);
-        transaction.setUser(user);
-        transaction.setWallet(wallet);
-        transaction.setAmount(amount);
-        transaction.setCategory(category);
-        transaction.setKind(kind);
-        transaction.setDateTime(LocalDateTime.parse(dateTime));
-
-        transactionService.update(transaction, userId);
-        return "redirect:/app?walletId=" + walletId;
+    @Operation(summary = "Создать транзакцию")
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public TransactionTo create(@Valid @RequestBody TransactionTo transactionTo,
+                                @AuthenticationPrincipal AuthUser authUser) {
+        Transaction transaction = TransactionMapper.fromDto(transactionTo, authUser.getUser());
+        Transaction created = transactionService.create(transaction, authUser.getId());
+        return TransactionMapper.toDto(created);
     }
 
-    @PostMapping("/transactions/{id}/delete")
-    public String delete(@PathVariable Integer id,
-                         @RequestParam(value = "walletId", required = false) Integer walletId,
-                         @RequestParam(value = "returnTo", required = false) String returnTo) {
-        Integer userId = CurrentUserService.getCurrentUserId();
-        transactionService.delete(id, userId);
+    @Operation(summary = "Обновить транзакцию")
+    @PutMapping("/{id}")
+    public TransactionTo update(@PathVariable Integer id,
+                                @Valid @RequestBody TransactionTo transactionTo,
+                                @AuthenticationPrincipal AuthUser authUser) {
+        Transaction transaction = TransactionMapper.fromDto(transactionTo, authUser.getUser());
+        transaction.setId(id);
+        Transaction updated = transactionService.update(transaction, authUser.getId());
+        return TransactionMapper.toDto(updated);
+    }
 
-        if ("list".equals(returnTo)) {
-            return "redirect:/list";
-        }
-
-        if (walletId != null && !walletId.equals(0)) {
-            return "redirect:/app?walletId=" + walletId;
-        }
-        return "redirect:/app";
+    @Operation(summary = "Удалить транзакцию")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Integer id,
+                       @AuthenticationPrincipal AuthUser authUser) {
+        transactionService.delete(id, authUser.getId());
     }
 }

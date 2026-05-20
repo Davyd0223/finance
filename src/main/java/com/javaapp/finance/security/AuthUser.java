@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.List;
 
 public class AuthUser implements UserDetails {
+
     private final User user;
 
     public AuthUser(User user) {
@@ -33,9 +34,8 @@ public class AuthUser implements UserDetails {
         return user.getEmail();
     }
 
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
     }
 }

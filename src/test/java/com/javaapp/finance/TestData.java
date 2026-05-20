@@ -26,6 +26,24 @@ public class TestData {
         user.setPassword(USER_ENCODED_PASSWORD);
         user.setDefaultCurrency(Currency.USD);
         user.setDefaultMonthlyBudget(BigDecimal.ZERO);
+        user.setRole(Role.USER);   // ✅ добавить
+        return user;
+    }
+
+    public static User createUser(Integer id, String name, String email) {
+        User user = createUser();
+        user.setId(id);
+        user.setName(name);
+        user.setEmail(email);
+        return user;
+    }
+
+    public static User createAdmin() {
+        User user = createUser();
+        user.setId(99);
+        user.setName("Admin");
+        user.setEmail("admin@gmail.com");
+        user.setRole(Role.ADMIN);
         return user;
     }
 

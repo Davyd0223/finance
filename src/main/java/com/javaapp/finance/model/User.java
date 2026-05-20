@@ -17,6 +17,10 @@ import java.math.BigDecimal;
 @Table(name = "users")
 public class User extends AbstractBaseEntity {
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
+
     @NotBlank(message = "Имя не может быть пустым")
     @Size(min = 2, max = 20, message = "Имя должно быть от 2 до 20 символов")
     private String name;

@@ -5,13 +5,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Integer> {
-    List<Transaction> findAllByUserIdOrderByDateTimeDesc(Integer userId);
 
-    List<Transaction> findAllByUserIdAndWalletIdOrderByDateTimeDesc(Integer userId, Integer walletId);
+    List<Transaction> findAllByUser_IdOrderByDateTimeDesc(Integer userId);
 
-    Optional<Transaction> findByIdAndUserId(Integer id, Integer userId);
+    List<Transaction> findAllByUser_IdAndWallet_IdOrderByDateTimeDesc(Integer userId, Integer walletId);
 }

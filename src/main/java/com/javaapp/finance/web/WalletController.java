@@ -1,70 +1,69 @@
 package com.javaapp.finance.web;
 
-import com.javaapp.finance.model.Currency;
-import com.javaapp.finance.model.User;
+import com.javaapp.finance.dto.WalletTo;
 import com.javaapp.finance.model.Wallet;
-import com.javaapp.finance.model.WalletType;
-import com.javaapp.finance.service.CurrentUserService;
+import com.javaapp.finance.security.AuthUser;
 import com.javaapp.finance.service.WalletService;
-import com.javaapp.finance.util.Messages;
-import com.javaapp.finance.util.ValidationUtil;
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import com.javaapp.finance.web.mapper.WalletMapper;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@AllArgsConstructor
-@Controller
+@Tag(name = "Wallets", description = "Управление кошельками")
+@RestController
+@RequestMapping("/api/wallets")
+@RequiredArgsConstructor
 public class WalletController {
 
     private final WalletService walletService;
-    private final Messages messages;
 
-    @PostMapping("/wallets")
-    public String create(
-            @RequestParam("name") String name,
-            @RequestParam("currency") Currency currency,
-            @RequestParam("type") WalletType type,
-            RedirectAttributes redirectAttributes
-    ) {
-        User user = CurrentUserService.getCurrentUser();
-        Integer userId = CurrentUserService.getCurrentUserId();
-
-        ValidationUtil validation = new ValidationUtil()
-                .requireNotBlank(name, messages.get("validation.wallet.name.blank"))
-                .requireMinLength(name, 2, messages.get("validation.wallet.name.min"))
-                .requireMaxLength(name, 20, messages.get("validation.wallet.name.max"));
-
-        if (validation.hasErrors()) {
-            redirectAttributes.addFlashAttribute("errors", validation.getErrors());
-            return "redirect:/list";
-        }
-
-        if (walletService.existsByUserIdAndName(userId, name)) {
-            redirectAttributes.addFlashAttribute("errors",
-                    List.of(messages.get("validation.wallet.name.exists")));
-            return "redirect:/list";
-        }
-
-        Wallet wallet = new Wallet();
-        wallet.setUser(user);
-        wallet.setName(name);
-        wallet.setCurrency(currency);
-        wallet.setType(type);
-
-        walletService.create(wallet, userId);
-        redirectAttributes.addFlashAttribute("successMessage", "Кошелек создан");
-        return "redirect:/list";
+    @Operation(summary = "Получить все кошельки пользователя")
+    @GetMapping
+    public List<WalletTo> getAll(@AuthenticationPrincipal AuthUser authUser) {
+        return walletService.getAllByUserId(authUser.getId()).stream()
+                .map(WalletMapper::toDto)
+                .toList();
     }
 
-    @PostMapping("/wallets/{id}/delete")
-    public String delete(@PathVariable Integer id) {
-        Integer userId = CurrentUserService.getCurrentUserId();
-        walletService.delete(id, userId);
-        return "redirect:/list";
+    @Operation(summary = "Получить кошелек по id")
+    @GetMapping("/{id}")
+    public WalletTo getById(@PathVariable Integer id,
+                            @AuthenticationPrincipal AuthUser authUser) {
+        return WalletMapper.toDto(walletService.getByIdAndUserId(id, authUser.getId()));
+    }
+
+    @Operation(summary = "Создать кошелёк")
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public WalletTo create(@Valid @RequestBody WalletTo walletTo,
+                           @AuthenticationPrincipal AuthUser authUser) {
+        Wallet wallet = WalletMapper.fromDto(walletTo, authUser.getUser());
+        Wallet created = walletService.create(wallet, authUser.getId());
+        return WalletMapper.toDto(created);
+    }
+
+    @Operation(summary = "Обновить кошелёк")
+    @PutMapping("/{id}")
+    public WalletTo update(@PathVariable Integer id,
+                           @Valid @RequestBody WalletTo walletTo,
+                           @AuthenticationPrincipal AuthUser authUser) {
+        Wallet wallet = WalletMapper.fromDto(walletTo, authUser.getUser());
+        wallet.setId(id);
+        Wallet updated = walletService.update(wallet, authUser.getId());
+        return WalletMapper.toDto(updated);
+    }
+
+    @Operation(summary = "Удалить кошелёк")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Integer id,
+                       @AuthenticationPrincipal AuthUser authUser) {
+        walletService.delete(id, authUser.getId());
     }
 }

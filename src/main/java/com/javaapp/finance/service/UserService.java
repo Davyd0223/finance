@@ -1,12 +1,10 @@
 package com.javaapp.finance.service;
 
-import com.javaapp.finance.model.Currency;
-import com.javaapp.finance.model.User;
-import com.javaapp.finance.model.Wallet;
-import com.javaapp.finance.model.WalletType;
+import com.javaapp.finance.model.*;
 import com.javaapp.finance.repository.UserRepository;
-import com.javaapp.finance.util.Messages;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,15 +19,15 @@ public class UserService {
     private final UserRepository userRepository;
     private final WalletService walletService;
     private final PasswordEncoder passwordEncoder;
-    private final Messages messages;
 
     @Transactional
     public void registerUser(String name, String email, String password, String walletName) {
         if (userRepository.existsByEmail(email)) {
-            throw new IllegalArgumentException(messages.get("error.user.exists"));
+            throw new IllegalArgumentException("User already exists");
         }
 
         User user = new User();
+        user.setRole(Role.USER);
         user.setName(name);
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(password));
@@ -45,17 +43,20 @@ public class UserService {
         walletService.create(wallet, user.getId());
     }
 
+    @Cacheable(value = "users", key ="#userId")
+    @Transactional(readOnly = true)
+    public User getById(Integer userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new NoSuchElementException("User not found"));
+    }
+
+    @CacheEvict(value = "users", key = "#userId")
     @Transactional
     public void updateProfile(Integer userId, String name, BigDecimal defaultMonthlyBudget) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException(messages.get("error.user.notFound")));
+                .orElseThrow(() -> new NoSuchElementException("User not found"));
         user.setName(name);
         user.setDefaultMonthlyBudget(defaultMonthlyBudget);
         userRepository.save(user);
-    }
-
-    public User getById(Integer userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException(messages.get("error.user.notFound")));
     }
 }
